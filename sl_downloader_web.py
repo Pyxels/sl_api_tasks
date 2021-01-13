@@ -62,7 +62,7 @@ def update_json():
     if (newCount > 0):
         print("Sending Notification to Discord")
         requests.post(
-            HOOK_URL, data={"content": f"{DISCORD_ID} Sir, there were {newCount} new Battles added. That makes {len(old_data['battles'])} in total."})
+            HOOK_URL, data={"content": f"{DISCORD_ID} Sir, there were *{newCount}* new Battles added. That makes **{len(old_data['battles'])}** in total."})
     # sorting by date, newest at the top
     old_data["battles"].sort(
         key=lambda item: item.get("created_date"), reverse=True)
