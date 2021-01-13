@@ -1,0 +1,5 @@
+/.venv_rs
+/.vscode
+data
+__pycache__
+.env
