@@ -20,7 +20,7 @@ def check_quest():
     print(quest_data)
 
     # if the quest is finished, break
-    if int(quest_data['total_items']) == int(quest_data['completed_items']):
+    if int(quest_data['completed_items']) != 0:
         return
 
     # extract the time out of the iso format datetime
