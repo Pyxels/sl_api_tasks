@@ -17,6 +17,8 @@ def check_quest():
     # Loading the JSON string data into a dictionary
     quest_data = json.loads(response.text)[0]
 
+    print(quest_data)
+
     # if the quest is finished, break
     if int(quest_data['total_items']) == int(quest_data['completed_items']):
         return
