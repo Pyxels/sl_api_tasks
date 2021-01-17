@@ -5,7 +5,6 @@ from datetime import datetime
 from decouple import config
 
 
-
 PLAYER_NAME = config('PLAYER_NAME')
 HOOK_URL = config('QUEST_HOOK_URL')
 DISCORD_ID = config('DISCORD_ID')
@@ -23,7 +22,6 @@ def check_quest():
 
     # if the quest is finished, break
     if int(quest_data['completed_items']) != 0:
-        print(f"Task took {time.perf_counter() - starting_time:0.4f} seconds")
         return
 
     # extract the time out of the iso format datetime
@@ -33,9 +31,8 @@ def check_quest():
     requests.post(
         HOOK_URL, data={'content': f"{DISCORD_ID} Sir, a new Quest awaits you.\n`Type: {quest_data['name']}`\n*{quest_time}*"})
 
-    print(f"Task took {time.perf_counter() - starting_time:0.4f} seconds")
-
 
 starting_time = time.perf_counter()
 if __name__ == "__main__":
     check_quest()
+    print(f"Task took {time.perf_counter() - starting_time:0.4f} seconds")

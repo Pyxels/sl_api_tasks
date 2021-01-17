@@ -1,3 +1,4 @@
+import time
 import requests
 import json
 from decouple import config
@@ -14,9 +15,11 @@ def update_json():
     newCount = 0
     battles_to_add = []
 
+    request_timer = time.perf_counter()
     # Getting the last 50 battles
     response = requests.get(
         f"https://api.splinterlands.io/battle/history?player={PLAYER_NAME}")
+    request_time = f"{time.perf_counter() - request_timer:0.4f}"
 
     # Printing the response of the api server
     print(response)
@@ -71,7 +74,11 @@ def update_json():
     with open(PATH, "w") as f:
         f.write(json.dumps(old_data))
 
+    print(
+        f"Task took {time.perf_counter() - all_timer:0.4f} seconds. Of that {request_time} seconds was the request.")
 
+
+all_timer = time.perf_counter()
 if __name__ == '__main__':
     try:
         update_json()
