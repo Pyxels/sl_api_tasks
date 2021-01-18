@@ -1,8 +1,8 @@
-import time
 import requests
 import json
 from datetime import datetime, timedelta
 from decouple import config
+from timer_function import time_function
 
 
 PLAYER_NAME = config('PLAYER_NAME')
@@ -10,6 +10,7 @@ HOOK_URL = config('QUEST_HOOK_URL')
 DISCORD_ID = config('DISCORD_ID')
 
 
+@time_function("check_quest")
 def check_quest():
 
     response = requests.get(
@@ -36,7 +37,5 @@ def check_quest():
         # `Type: {quest_data['name']}`\n
 
 
-starting_time = time.perf_counter()
 if __name__ == "__main__":
     check_quest()
-    print(f"Task took {time.perf_counter() - starting_time:0.4f} seconds")
