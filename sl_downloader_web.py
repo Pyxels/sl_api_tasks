@@ -1,9 +1,8 @@
-import time
 import requests
 import json
 from decouple import config
-from get_enemies import add_enemies
 from timer_function import time_function
+from get_enemies import add_enemies
 
 PATH = config('BATTLES_PATH')
 HOOK_URL = config('API_HOOK_URL')
@@ -13,8 +12,7 @@ DISCORD_ID = config('DISCORD_ID')
 
 @time_function("request_data")
 def request_data():
-    temp = requests.get(f"https://api.splinterlands.io/battle/history?player={PLAYER_NAME}")
-    return temp
+    return requests.get(f"https://api.splinterlands.io/battle/history?player={PLAYER_NAME}"), requests.get(f"https://api.splinterlands.io/players/details?name={PLAYER_NAME}")
 
 
 @time_function("as a whole")
@@ -24,13 +22,14 @@ def update_json():
     battles_to_add = []
 
     # Getting the last 50 battles
-    response = request_data()
+    battles_response, power_response = request_data()
 
     # Printing the response of the api server
-    print(response)
+    print(battles_response, power_response)
 
     # Loading the JSON string data into a dictionary containing player and battles, which contains a list of dictionaries
-    new_data = json.loads(response.text)
+    new_data = json.loads(battles_response.text)
+    current_power = json.loads(power_response.text)["collection_power"]
 
     # Getting the historic data saved so far as old_data
     with open(PATH, "r") as f:
@@ -48,6 +47,8 @@ def update_json():
         # check if new game is ranked, nothing but ranked is to be added
         if new and new_battle["match_type"] == "Ranked":
             print("New from {} added".format(new_battle["created_date"]))
+            # add the current power to the file
+            new_battle["power"] = current_power
             # old_data["battles"].append(new_battle)
             battles_to_add.append(new_battle)
             newCount += 1
@@ -70,7 +71,7 @@ def update_json():
     if (newCount > 0):
         print("Sending Notification to Discord")
         requests.post(
-            HOOK_URL, data={"content": f"{DISCORD_ID} Sir, there were *{newCount}* new Battles added. That makes **{len(old_data['battles'])}** in total."})
+            HOOK_URL, data={"content": f"Sir, there were *{newCount}* new Battles added. That makes **{len(old_data['battles'])}** in total."})
     # sorting by date, newest at the top
     old_data["battles"].sort(
         key=lambda item: item.get("created_date"), reverse=True)

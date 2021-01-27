@@ -8,8 +8,7 @@ PLAYER_NAME = config('PLAYER_NAME')
 
 def add_enemies(new_battles, first_time=False):
 
-    previous_dict = {}
-    new_dict = {}
+    enemies_dict = {}
 
     # informational counters
     added_counter = 0
@@ -18,7 +17,7 @@ def add_enemies(new_battles, first_time=False):
     # dont load a non existant file if this is the first time loading
     if not first_time:
         with open(ENEMIES_LIST, "r") as f:
-            previous_dict = json.load(f)
+            enemies_dict = json.load(f)
 
     # for each battle in the battle list, get the enemy and the winner
     for battle in new_battles:
@@ -26,23 +25,20 @@ def add_enemies(new_battles, first_time=False):
         winner = 1 if battle["winner"] == PLAYER_NAME else 0
 
         # if the enemy already has an entry, increment values
-        if enemy in new_dict:
+        if enemy in enemies_dict:
             exists_counter += 1
-            new_dict[enemy]["battles_won"] += winner
-            new_dict[enemy]["battles"] += 1
+            enemies_dict[enemy]["battles_won"] += winner
+            enemies_dict[enemy]["battles"] += 1
         else:
             added_counter += 1
-            new_dict[enemy] = {
+            enemies_dict[enemy] = {
                 "battles_won": winner,
                 "battles": 1}
 
     print(f"{added_counter} new enemies were added and {exists_counter} already existed.")
 
-    # extends the old dict with the new values
-    previous_dict.update(new_dict)
-
     # save this updated dict
-    _save_to_file(previous_dict)
+    _save_to_file(enemies_dict)
 
 
 def _save_to_file(new_dict):
