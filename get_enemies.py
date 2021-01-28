@@ -1,8 +1,7 @@
 import json
 from decouple import config
 
-BATTLE_HIST = config('BATTLES_PATH')
-ENEMIES_LIST = config('ENEMIES_PATH')
+DATA_PATH = config('DATA_PATH')
 PLAYER_NAME = config('PLAYER_NAME')
 
 
@@ -16,7 +15,7 @@ def add_enemies(new_battles, first_time=False):
 
     # dont load a non existant file if this is the first time loading
     if not first_time:
-        with open(ENEMIES_LIST, "r") as f:
+        with open(f"{DATA_PATH}enemies_list.json", "r") as f:
             enemies_dict = json.load(f)
 
     # for each battle in the battle list, get the enemy and the winner
@@ -47,14 +46,14 @@ def _save_to_file(new_dict):
         sorted(new_dict.items(), key=lambda item: item[1]["battles"], reverse=True))
 
     # save
-    with open(ENEMIES_LIST, "w") as f:
+    with open(f"{DATA_PATH}enemies_list.json", "w") as f:
         f.write(json.dumps(sorted_dict))
 
 
 def _get_first_enemies():
 
     # get all the battles
-    with open(BATTLE_HIST, "r") as f:
+    with open(f"{DATA_PATH}sl_battle_hist.json", "r") as f:
         battle_data = json.load(f)
 
     add_enemies(battle_data["battles"], first_time=True)

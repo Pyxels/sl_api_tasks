@@ -4,7 +4,7 @@ from decouple import config
 from timer_function import time_function
 from get_enemies import add_enemies
 
-PATH = config('BATTLES_PATH')
+DATA_PATH = config('DATA_PATH')
 HOOK_URL = config('API_HOOK_URL')
 PLAYER_NAME = config('PLAYER_NAME')
 DISCORD_ID = config('DISCORD_ID')
@@ -32,7 +32,7 @@ def update_json():
     current_power = json.loads(power_response.text)["collection_power"]
 
     # Getting the historic data saved so far as old_data
-    with open(PATH, "r") as f:
+    with open(f"{DATA_PATH}sl_battle_hist.json", "r") as f:
         old_data = json.load(f)
 
     # checking if the new data from the api already
@@ -77,7 +77,7 @@ def update_json():
         key=lambda item: item.get("created_date"), reverse=True)
 
     # overwriting the history file
-    with open(PATH, "w") as f:
+    with open(f"{DATA_PATH}sl_battle_hist.json", "w") as f:
         f.write(json.dumps(old_data))
 
 
