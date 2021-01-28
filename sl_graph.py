@@ -14,10 +14,12 @@ def generate_lists():
     with open(f"{DATA_PATH}sl_battle_hist.json", "r") as f:
         battles = json.load(f)["battles"]
 
+    # get the ratings and save them to a list 
     for battle in battles:
         ratings.insert(0, int(battle["player_1_rating_final"] if battle["player_1"]
                               == "pyxels" else int(battle["player_2_rating_final"])))
 
+        # if the battle has a power value (added 28.01.21) add that to a new key
         if "power" in battle:
             power_list.insert(0, battle["power"])
         else:
