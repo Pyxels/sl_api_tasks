@@ -39,7 +39,9 @@ def generate_graph():
     ratings_plot.plot(ratings)
     power_plot.plot(power_list, color='red')
 
-    # ymin, ymax = ratings_plot.getylim()
+    # ymin, ymax = ratings_plot.get_ylim()
+
+    power_plot.set_yticks([1000, 5000, 15000, 40000, 70000, 100000, 150000, 200000])
 
     ratings_plot.axhline(y=100, color='darkgoldenrod', linestyle=':')
     ratings_plot.axhline(y=400, color='darkgoldenrod', linestyle=':')
