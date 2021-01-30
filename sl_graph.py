@@ -1,6 +1,6 @@
 import json
 import matplotlib.pyplot as plt
-from decouple import config
+from config import config
 
 
 DATA_PATH = config('DATA_PATH')
@@ -37,7 +37,7 @@ def generate_graph():
     power_plot = ratings_plot.twinx()
 
     ratings_plot.plot(ratings)
-    power_plot.plot(power_list)
+    power_plot.plot(power_list, color='red')
 
     # ymin, ymax = ratings_plot.getylim()
 

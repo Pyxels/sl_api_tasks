@@ -1,6 +1,6 @@
 import requests
 import json
-from decouple import config
+from config import config
 from timer_function import time_function
 from get_enemies import add_enemies
 

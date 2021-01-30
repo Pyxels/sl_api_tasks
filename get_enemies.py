@@ -1,5 +1,5 @@
 import json
-from decouple import config
+from config import config
 
 DATA_PATH = config('DATA_PATH')
 PLAYER_NAME = config('PLAYER_NAME')

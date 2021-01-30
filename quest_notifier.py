@@ -1,7 +1,7 @@
 import requests
 import json
 from datetime import datetime, timedelta
-from decouple import config
+from config import config
 from timer_function import time_function
 
 
