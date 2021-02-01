@@ -1,13 +1,13 @@
+import os
 import requests
 import json
-from config import config
-from timer_function import time_function
-from get_enemies import add_enemies
+from config.config import config
+from time_functions.timer_function import time_function
+from enemies import add_enemies
+from notification.discord import send_notification
 
-DATA_PATH = config('DATA_PATH')
-HOOK_URL = config('API_HOOK_URL')
+DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
 PLAYER_NAME = config('PLAYER_NAME')
-DISCORD_ID = config('DISCORD_ID')
 
 
 @time_function("request_data")
@@ -32,7 +32,7 @@ def update_json():
     current_power = json.loads(power_response.text)["collection_power"]
 
     # Getting the historic data saved so far as old_data
-    with open(f"{DATA_PATH}sl_battle_hist.json", "r") as f:
+    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "r") as f:
         old_data = json.load(f)
 
     # checking if the new data from the api already
@@ -70,14 +70,15 @@ def update_json():
     # if any battles were added, send a discord notification using web hooks
     if (newCount > 0):
         print("Sending Notification to Discord")
-        requests.post(
-            HOOK_URL, data={"content": f"Sir, there were *{newCount}* new Battles added. That makes **{len(old_data['battles'])}** in total."})
+        send_notification(
+            f"Sir, there were *{newCount}* new Battles added. That makes **{len(old_data['battles'])}** in total.")
+
     # sorting by date, newest at the top
     old_data["battles"].sort(
         key=lambda item: item.get("created_date"), reverse=True)
 
     # overwriting the history file
-    with open(f"{DATA_PATH}sl_battle_hist.json", "w") as f:
+    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "w") as f:
         f.write(json.dumps(old_data))
 
 
@@ -89,3 +90,5 @@ if __name__ == '__main__':
         print(sys.exc_info()[0])
         import traceback
         print(traceback.format_exc())
+
+        send_notification("Downloader encountered an Error.", 'error')

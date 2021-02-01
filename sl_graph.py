@@ -1,9 +1,12 @@
+import os
 import json
 import matplotlib.pyplot as plt
-from config import config
+from config.config import config
+from notification.discord import send_notification
 
 
-DATA_PATH = config('DATA_PATH')
+DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
+
 
 ratings = []
 power_list = []
@@ -11,7 +14,7 @@ power_list = []
 
 def generate_lists():
 
-    with open(f"{DATA_PATH}sl_battle_hist.json", "r") as f:
+    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "r") as f:
         battles = json.load(f)["battles"]
 
     # get the ratings and save them to a list 
@@ -59,7 +62,7 @@ def generate_graph():
     plt.title('Rating over time')
 
     # plt.show()
-    plt.savefig(f"{DATA_PATH}ratings_graph.png")
+    plt.savefig(os.path.join(DATA_PATH, 'ratings_graph.png'))
 
 
 if __name__ == "__main__":
@@ -71,3 +74,5 @@ if __name__ == "__main__":
         print(sys.exc_info()[0])
         import traceback
         print(traceback.format_exc())
+        
+        send_notification("Graph creation ecountered an ERROR.", 'error')

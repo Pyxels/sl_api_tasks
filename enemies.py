@@ -1,7 +1,8 @@
+import os
 import json
-from config import config
+from config.config import config
 
-DATA_PATH = config('DATA_PATH')
+DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
 PLAYER_NAME = config('PLAYER_NAME')
 
 
@@ -15,7 +16,7 @@ def add_enemies(new_battles, first_time=False):
 
     # dont load a non existant file if this is the first time loading
     if not first_time:
-        with open(f"{DATA_PATH}enemies_list.json", "r") as f:
+        with open(os.path.join(DATA_PATH, 'enemies_list.json'), "r") as f:
             enemies_dict = json.load(f)
 
     # for each battle in the battle list, get the enemy and the winner
@@ -46,14 +47,14 @@ def _save_to_file(new_dict):
         sorted(new_dict.items(), key=lambda item: item[1]["battles"], reverse=True))
 
     # save
-    with open(f"{DATA_PATH}enemies_list.json", "w") as f:
+    with open(os.path.join(DATA_PATH, 'enemies_list.json'), "w") as f:
         f.write(json.dumps(sorted_dict))
 
 
 def _get_first_enemies():
 
     # get all the battles
-    with open(f"{DATA_PATH}sl_battle_hist.json", "r") as f:
+    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "r") as f:
         battle_data = json.load(f)
 
     add_enemies(battle_data["battles"], first_time=True)

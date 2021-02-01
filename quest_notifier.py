@@ -1,12 +1,12 @@
 import requests
 import json
 from datetime import datetime, timedelta
-from config import config
-from timer_function import time_function
+from config.config import config
+from time_functions.timer_function import time_function
+from notification.discord import send_notification
 
 
 PLAYER_NAME = config('PLAYER_NAME')
-HOOK_URL = config('QUEST_HOOK_URL')
 DISCORD_ID = config('DISCORD_ID')
 
 
@@ -32,10 +32,13 @@ def check_quest():
     # checks to see if 23 hours have passed after last quest was created
     if datetime.now() > (quest_time + timedelta(hours=23)):
         # send discord notification; + 24 is due to easy fix of timezone +1 for me
-        requests.post(
-            HOOK_URL, data={'content': f"{DISCORD_ID} Sir, a new Quest awaits you.\n*{(quest_time + timedelta(hours=24)).time()}*"})
+        send_notification(
+            f"{DISCORD_ID} Sir, a new Quest awaits you.\n*{(quest_time + timedelta(hours=24)).time()}*", 'quest')
         # `Type: {quest_data['name']}`\n
 
 
 if __name__ == "__main__":
-    check_quest()
+    try:
+        check_quest()
+    except:
+        send_notification("Quest Notifier encountered an error.", 'error')
