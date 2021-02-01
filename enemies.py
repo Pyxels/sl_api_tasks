@@ -1,63 +1,58 @@
 import os
 import json
 from config.config import config
+from db_interface.db_interface import *
 
 DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
 PLAYER_NAME = config('PLAYER_NAME')
 
 
-def add_enemies(new_battles, first_time=False):
-
-    enemies_dict = {}
+def add_enemies(new_battles, db, cursor):
 
     # informational counters
     added_counter = 0
     exists_counter = 0
 
-    # dont load a non existant file if this is the first time loading
-    if not first_time:
-        with open(os.path.join(DATA_PATH, 'enemies_list.json'), "r") as f:
-            enemies_dict = json.load(f)
+    # load the existing enemies from db
+    cursor.execute("SELECT * FROM Enemies;")
+    enemies_list = cursor.fetchall()
 
-    # for each battle in the battle list, get the enemy and the winner
     for battle in new_battles:
-        enemy = battle["player_1"] if battle["player_1"] != PLAYER_NAME else battle["player_2"]
-        winner = 1 if battle["winner"] == PLAYER_NAME else 0
 
-        # if the enemy already has an entry, increment values
-        if enemy in enemies_dict:
-            exists_counter += 1
-            enemies_dict[enemy]["battles_won"] += winner
-            enemies_dict[enemy]["battles"] += 1
-        else:
+        # for each battle in the battle list, get the enemy and the winner
+        enemy = battle[0] if battle[0] != PLAYER_NAME else battle[1]
+        winner = 1 if battle[2] == PLAYER_NAME else 0
+
+        # increment values if enemy already existed
+        was_added = False
+        for entry in enemies_list:
+            if enemy == entry[1]:
+                cursor.execute(f"UPDATE Enemies SET battles={entry[2] + 1}, battles_won={entry[3] + winner} WHERE name={enemy};")
+                exists_counter += 1
+                was_added = True
+                break
+
+        if not was_added:
+            enemies_list.append(battle)
+            cursor.execute(f"INSERT INTO Enemies VALUES ({enemy}, 1, {winner});")
             added_counter += 1
-            enemies_dict[enemy] = {
-                "battles_won": winner,
-                "battles": 1}
+
 
     print(f"{added_counter} new enemies were added and {exists_counter} already existed.")
 
     # save this updated dict
-    _save_to_file(enemies_dict)
+    db.commit()
 
-
-def _save_to_file(new_dict):
-    # sort the dict by number of battles
-    sorted_dict = dict(
-        sorted(new_dict.items(), key=lambda item: item[1]["battles"], reverse=True))
-
-    # save
-    with open(os.path.join(DATA_PATH, 'enemies_list.json'), "w") as f:
-        f.write(json.dumps(sorted_dict))
 
 
 def _get_first_enemies():
 
-    # get all the battles
-    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "r") as f:
-        battle_data = json.load(f)
+    db, cursor = open_conn()
 
-    add_enemies(battle_data["battles"], first_time=True)
+    # get from db
+    cursor.execute("SELECT player_1, player_2, winner FROM Battles;")
+
+    add_enemies(cursor.fetchall(), db, cursor)
 
 
 # run only once to initialize

@@ -7,6 +7,7 @@ from db_interface.db_interface import *
 
 
 DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
+PLAYER = config('PLAYER_NAME')
 
 
 ratings = []
@@ -24,7 +25,7 @@ def generate_lists():
 
     # get the ratings and save them to a list 
     for data in data_rows:
-        ratings.append(data[0] if data[3] == 'pyxels' else data[1])
+        ratings.append(data[0] if data[3] == PLAYER else data[1])
 
         # if the battle has a power value (added 28.01.21) add that 
         power_list.append(data[2])
