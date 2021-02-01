@@ -15,7 +15,7 @@ def add_enemies(new_battles, db, cursor):
         enemy = battle[0] if battle[0] != PLAYER_NAME else battle[1]
         winner = 1 if battle[2] == PLAYER_NAME else 0
 
-        cursor.execute(f"INSERT INTO Enemies VALUES ('{enemy}', 1, {winner}) \
+        cursor.execute(f"INSERT INTO Enemies (name, battles, battles_won) VALUES ('{enemy}', 1, {winner}) \
                        ON DUPLICATE KEY UPDATE battles=battles+1, battles_won=battles_won+{winner};")
 
 
