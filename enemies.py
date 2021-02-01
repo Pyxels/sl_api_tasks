@@ -14,7 +14,7 @@ def add_enemies(new_battles, db, cursor):
     exists_counter = 0
 
     # load the existing enemies from db
-    cursor.execute("SELECT * FROM Enemies;")
+    cursor.execute("SELECT name, battles, battles_won FROM Enemies;")
     enemies_list = cursor.fetchall()
 
     for battle in new_battles:
@@ -26,21 +26,20 @@ def add_enemies(new_battles, db, cursor):
         # increment values if enemy already existed
         was_added = False
         for entry in enemies_list:
-            if enemy == entry[1]:
-                cursor.execute(f"UPDATE Enemies SET battles={entry[2] + 1}, battles_won={entry[3] + winner} WHERE name={enemy};")
+            if enemy == entry[0]:
+                cursor.execute(f"UPDATE Enemies SET battles={int(entry[1]) + 1}, battles_won={int(entry[2]) + winner} WHERE name='{enemy}';")
                 exists_counter += 1
                 was_added = True
                 break
 
         if not was_added:
-            enemies_list.append(battle)
-            cursor.execute(f"INSERT INTO Enemies VALUES ({enemy}, 1, {winner});")
+            new_tuple = (enemy, 1, winner)
+            enemies_list.append(new_tuple)
+            cursor.execute(f"INSERT INTO Enemies (name, battles, battles_won) VALUES ('{enemy}', 1, {winner});")
             added_counter += 1
-
 
     print(f"{added_counter} new enemies were added and {exists_counter} already existed.")
 
-    # save this updated dict
     db.commit()
 
 
