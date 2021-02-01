@@ -3,10 +3,9 @@ import requests
 import json
 from config.config import config
 from time_functions.timer_function import time_function
-from enemies import add_enemies
 from notification.discord import send_notification
+from db_interface.db_interface import open_conn, close_conn
 
-DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
 PLAYER_NAME = config('PLAYER_NAME')
 
 
@@ -18,8 +17,7 @@ def request_data():
 @time_function("as a whole")
 def update_json():
 
-    newCount = 0
-    battles_to_add = []
+    db, cursor = open_conn()
 
     # Getting the last 50 battles
     battles_response, power_response = request_data()
@@ -31,55 +29,23 @@ def update_json():
     new_data = json.loads(battles_response.text)
     current_power = json.loads(power_response.text)["collection_power"]
 
-    # Getting the historic data saved so far as old_data
-    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "r") as f:
-        old_data = json.load(f)
 
-    # checking if the new data from the api already
-    # exists in the data file
+    # add the new battles
     for new_battle in new_data["battles"]:
-        for old_battle in old_data["battles"]:
-            if new_battle["battle_queue_id_1"] == old_battle["battle_queue_id_1"]:
-                new = False
-                break
-            else:
-                new = True
-        # check if new game is ranked, nothing but ranked is to be added
-        if new and new_battle["match_type"] == "Ranked":
-            print("New from {} added".format(new_battle["created_date"]))
-            # add the current power to the file
-            new_battle["power"] = current_power
-            # old_data["battles"].append(new_battle)
-            battles_to_add.append(new_battle)
-            newCount += 1
+        
+        if new_battle["match_type"] != "Ranked":
+            break
 
-    # add the new battles to the old data and extend enemies list
-    old_data["battles"].extend(battles_to_add)
-    add_enemies(battles_to_add)
+        command = "INSERT IGNORE INTO Battles VALUES ("
+        command += ", ".join([str(item) for item in new_battle])
+        command += f", {current_power});"
 
-    # removing non ranked battles (unrepresentative)
-    """ for battle in old_data["battles"]:
-        if battle["match_type"] != "Ranked":
-            print("Removed non Ranked from {}".format(battle["created_date"]))
-            old_data["battles"].remove(battle)
-            newCount -= 1 """
 
-    print("{} Battles added".format(newCount))
-    print("{} Battles in total".format(len(old_data["battles"])))
+        cursor.execute(command)
 
-    # if any battles were added, send a discord notification using web hooks
-    if (newCount > 0):
-        print("Sending Notification to Discord")
-        send_notification(
-            f"Sir, there were *{newCount}* new Battles added. That makes **{len(old_data['battles'])}** in total.")
+    db.commit()
 
-    # sorting by date, newest at the top
-    old_data["battles"].sort(
-        key=lambda item: item.get("created_date"), reverse=True)
-
-    # overwriting the history file
-    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "w") as f:
-        f.write(json.dumps(old_data))
+    close_conn(db, cursor)
 
 
 if __name__ == '__main__':

@@ -1,11 +1,10 @@
 import os
 import json
 from config.config import config
-from db_interface.db_interface import *
+from db_interface.db_interface import open_conn, close_conn
+from notification.discord import send_notification
 
-DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
 PLAYER_NAME = config('PLAYER_NAME')
-
 
 def add_enemies(new_battles, db, cursor):
 
@@ -18,8 +17,6 @@ def add_enemies(new_battles, db, cursor):
         cursor.execute(f"INSERT INTO Enemies (name, battles, battles_won) VALUES ('{enemy}', 1, {winner}) \
                        ON DUPLICATE KEY UPDATE battles=battles+1, battles_won=battles_won+{winner};")
 
-
-    # save this updated dict
     print("commiting ...")
     db.commit()
 
@@ -34,6 +31,8 @@ def _get_first_enemies():
 
     add_enemies(cursor.fetchall(), db, cursor)
 
+    close_conn(db, cursor)
+
 
 # run only once to initialize
 if __name__ == '__main__':
@@ -44,3 +43,5 @@ if __name__ == '__main__':
         print(sys.exc_info()[0])
         import traceback
         print(traceback.format_exc())
+
+        send_notification("An Error occured in enemies.", 'error')

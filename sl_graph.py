@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 from config.config import config
 from notification.discord import send_notification
-from db_interface.db_interface import *
+from db_interface.db_interface import open_conn, close_conn
 
 
 DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
