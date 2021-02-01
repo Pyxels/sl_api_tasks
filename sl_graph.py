@@ -3,6 +3,7 @@ import json
 import matplotlib.pyplot as plt
 from config.config import config
 from notification.discord import send_notification
+from db_interface.db_interface import *
 
 
 DATA_PATH = os.path.join(config('PROJECT_PATH'), 'data')
@@ -14,22 +15,26 @@ power_list = []
 
 def generate_lists():
 
-    with open(os.path.join(DATA_PATH, 'sl_battle_hist.json'), "r") as f:
-        battles = json.load(f)["battles"]
+    db, cursor = open_conn()
+
+    # get all ratings, name and power
+    cursor.execute('SELECT player_1_rating_final, player_2_rating_final, power, player_1 FROM Battles;')
+    data_rows = cursor.fetchall()
+
+    close_conn(db, cursor)
 
     # get the ratings and save them to a list 
-    for battle in battles:
-        ratings.insert(0, int(battle["player_1_rating_final"] if battle["player_1"]
-                              == "pyxels" else int(battle["player_2_rating_final"])))
+    for data in data_rows:
+        ratings.insert(0, data[0] if data[3] == 'pyxels' else data[1])
 
-        # if the battle has a power value (added 28.01.21) add that to a new key
-        if "power" in battle:
-            power_list.insert(0, battle["power"])
-        else:
-            power_list.insert(0, None)
+        # if the battle has a power value (added 28.01.21) add that 
+        power_list.insert(0, data[2])
+
 
     print(f"Number of ratings: {len(ratings)}")
+    # -1303 since i have 1303 battles without power 
     print(f"Number of powers: {len(power_list) - 1303}")
+
 
 
 def generate_graph():
