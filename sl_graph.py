@@ -21,19 +21,20 @@ def generate_lists():
     cursor.execute('SELECT player_1_rating_final, player_2_rating_final, power, player_1 FROM Battles;')
     data_rows = cursor.fetchall()
 
-    close_conn(db, cursor)
 
     # get the ratings and save them to a list 
     for data in data_rows:
-        ratings.insert(0, data[0] if data[3] == 'pyxels' else data[1])
+        ratings.append(data[0] if data[3] == 'pyxels' else data[1])
 
         # if the battle has a power value (added 28.01.21) add that 
-        power_list.insert(0, data[2])
+        power_list.append(data[2])
 
 
     print(f"Number of ratings: {len(ratings)}")
     # -1303 since i have 1303 battles without power 
     print(f"Number of powers: {len(power_list) - 1303}")
+
+    close_conn(db, cursor)
 
 
 
