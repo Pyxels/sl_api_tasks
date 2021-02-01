@@ -9,38 +9,18 @@ PLAYER_NAME = config('PLAYER_NAME')
 
 def add_enemies(new_battles, db, cursor):
 
-    # informational counters
-    added_counter = 0
-    exists_counter = 0
-
-    # load the existing enemies from db
-    cursor.execute("SELECT * FROM Enemies;")
-    enemies_list = cursor.fetchall()
-
     for battle in new_battles:
 
         # for each battle in the battle list, get the enemy and the winner
         enemy = battle[0] if battle[0] != PLAYER_NAME else battle[1]
         winner = 1 if battle[2] == PLAYER_NAME else 0
 
-        # increment values if enemy already existed
-        was_added = False
-        for entry in enemies_list:
-            if enemy == entry[1]:
-                cursor.execute(f"UPDATE Enemies SET battles={entry[2] + 1}, battles_won={entry[3] + winner} WHERE name={enemy};")
-                exists_counter += 1
-                was_added = True
-                break
+        cursor.execute(f"UPDATE Enemies SET battles=battles+1, battles_won=battles_won+{winner} WHERE name='{enemy}'\
+                       IF @@ROWCOUNT=0 INSERT INTO Enemies VALUES('{enemy}', 1, {winner})")
 
-        if not was_added:
-            enemies_list.append(battle)
-            cursor.execute(f"INSERT INTO Enemies VALUES ({enemy}, 1, {winner});")
-            added_counter += 1
-
-
-    print(f"{added_counter} new enemies were added and {exists_counter} already existed.")
 
     # save this updated dict
+    print("commiting ...")
     db.commit()
 
 
