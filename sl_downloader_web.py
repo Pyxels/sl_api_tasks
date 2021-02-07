@@ -24,7 +24,7 @@ def update_json():
 
     # Printing the response of the api server
     print(
-        f"Battle history: {battles_response} \Player details: {power_response}")
+        f"Battle history: {battles_response} \nPlayer details: {power_response}")
 
     # Loading the JSON string data into a dictionary containing player and battles, which contains a list of dictionaries
     new_data = json.loads(battles_response.text)
