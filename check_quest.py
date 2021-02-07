@@ -37,6 +37,7 @@ def check_quest():
     )
 
     print("PythonAnywhere:", pa_response)
+    print(f"Changed times to {quest_time.hour}:{quest_time.minute +5}.")
 
 
 if __name__ == "__main__":
