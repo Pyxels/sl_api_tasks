@@ -34,7 +34,7 @@ def update_json():
     for battle in new_data["battles"]:
 
         if battle["match_type"] != "Ranked":
-            break
+            continue
 
         command = 'INSERT IGNORE INTO Battles'
         command += f' VALUES ("{battle["battle_queue_id_1"]}", "{battle["battle_queue_id_2"]}", {battle["player_1_rating_initial"]}, {battle["player_2_rating_initial"]}, "{battle["winner"]}", {battle["player_1_rating_final"]}, {battle["player_2_rating_final"]}, {json.dumps(battle["details"])}, "{battle["player_1"]}", "{battle["player_2"]}", "{battle["created_date"]}", "{battle["match_type"]}", {battle["mana_cap"]}, {battle["current_streak"]}, "{battle["ruleset"]}", "{battle["inactive"]}", {json.dumps(battle["settings"])}, {battle["block_num"]}, {battle["rshares"]}, {json.dumps(battle["dec_info"])}, {battle["leaderboard"]}'
