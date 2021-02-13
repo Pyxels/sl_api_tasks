@@ -11,10 +11,13 @@ def check_activity():
     cursor.execute(
         "SELECT created_date FROM Battles ORDER BY created_date DESC LIMIT 1;")
 
-    db_date = cursor.fetchone()[0].split("T")[0]
+    last_played = cursor.fetchone()[0]
+
+    db_date = last_played.split("T")[0]
 
     if db_date != date.today().isoformat():
         send_notification("No new games were added today", 'error')
+        print("Have you been playing? Last game: ", last_played)
 
     close_conn(db, cursor)
 
