@@ -16,8 +16,9 @@ def check_activity():
     db_date = last_played.split("T")[0]
 
     if db_date != date.today().isoformat():
-        send_notification("No new games were added today", 'error')
-        print("Have you been playing? Last game: ", last_played)
+        send_notification(
+            f"No new games were added today. Last game: {last_played}", 'error')
+        print("Have you been playing? Last game:", last_played)
 
     close_conn(db, cursor)
 
